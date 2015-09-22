@@ -1,6 +1,6 @@
 // Threaded two-dimensional Discrete FFT transform
-// YOUR NAME HERE
-// ECE8893 Project 2
+// Parav Nagarsheth
+// ECE6122 Project 2
 
 
 #include <iostream>
@@ -78,6 +78,3 @@ int main(int argc, char** argv)
   // MPI initialization here
   Transform2D(fn.c_str()); // Perform the transform.
 }  
-  
-
-  
