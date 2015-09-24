@@ -14,6 +14,13 @@
 // many threads there are, and a Complex* that points to the
 // 2d image being transformed.
 
+struct barrier_struct {
+  pthread_mutex_t mutex;
+  int threads_left;
+  int n_threads;
+  int g_sense;
+};
+
 using namespace std;
 
 // Function to reverse bits in an unsigned integer
@@ -37,13 +44,32 @@ unsigned ReverseBits(unsigned v)
 // Undergrads can use the built-in barriers in pthreads.
 
 // Call MyBarrier_Init once in main
-void MyBarrier_Init()// you will likely need some parameters)
+int MyBarrier_Init(struct barrier_struct *barrier, n_threads)// you will likely need some parameters)
 {
+  int ret;
+  ret = pthread_mutex_init(&(barrier->mutex), NULL);
+  if (ret < 0)
+    return ret;
+  barrier->threads_left = n_threads;
+  barrier->n_threads = n_threads;
+  barrier->g_sense = 0;
+  return 0;
 }
 
 // Each thread calls MyBarrier after completing the row-wise DFT
-void MyBarrier() // Again likely need parameters
+void MyBarrier(struct barrier_struct *barrier, int l_sense) // Again likely need parameters
 {
+  l_sense = !l_sense;
+  pthread_mutex_lock(&(barrier->mutex));
+  barrier->threads_left--;
+  pthread_mutex_unlock(&(barrier->mutex));  
+  if (!barrier->threads_left)
+  {
+    barrier->threads_left = barrier->n_threads;
+    barrier->g_sense = l_sense;
+  }
+  else
+    while(barrier->g_sense != l_sense);
 }
                     
 void Transform1D(Complex* h, int N)
